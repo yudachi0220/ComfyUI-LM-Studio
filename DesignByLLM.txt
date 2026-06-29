@@ -1,0 +1,60 @@
+帮我开发一个Comfyui插件，实现以下功能：
+功能分成以下的几个节点：
+# 参数配置：
+一个api地址输入框 是字符串
+一个api key输入框 是字符串
+输出的是一个 api config 接口
+
+# 模型加载：
+一个api config输入接口，用于接收API输入
+节点包含一个下拉菜单，旁边有一个获取按钮，点击向API申请获取模型列表。更新完之后，下拉菜单可以选择模型
+一个string输入接口，只接收输入，不做任何事情
+
+这个节点，在运行的时候，会向用户给定的API请求加载指定的模型。
+
+# system prompt 节点：
+一个多行字符串输入框，提供给用户输入System Prompt
+输出的是一个message类型的接口
+
+这个节点，运行的时候会将用户输入的system prompt作为message的System Prompt，然后输出
+
+# user prompt 节点：
+包含一个message类型的输入接口
+一个多行字符串输入框，提供给用户输入user prompt
+包含一个图片输入接口，用于输入图片
+
+输出的是一个message类型的接口
+
+这个节点，运行的时候会读取上一个输入的message，并且将当前节点的user prompt数据拼接到 输入的message实例里面，然后输出传递给下一个。如果输入了图片，则把图片编码成base64，然后按OpenAI API支持的图文请求格式和user prompt一同编码之后往后传递，如果输入message为空，则创建一个新的message实例，然后将当前节点的user prompt数据填充进去输出
+
+# LMStudio请求节点：
+包含一个message类型的输入接口
+一个api config 的输入接口
+context length 整数输入，配置上下文最大长度，默认4096，值域范围在10到100000
+temperature 浮点数输入，用于配置温度值，默认0.7，值域范围0.0 到 1.0
+TopP浮点数输入，用于配置TopP, 默认0.95，值域范围0.0到1.0
+
+输出节点是一个message类型的接口，一个output的string输出接口。
+
+这个节点，通过给定的API和Key，以及用户配置的参数，将用户输入的prompt上下文数据解包，并且组织成符合OpenAI API请求的形式，然后向LMStudio API地址发送请求，并等待回复。完整接收回复之后，将返回的文本作为assistant prompt拼接到message里面，然后在message接口输出，同时将本次请求API的回复输出到output。
+
+# Unload节点：
+一个api config 的输入接口
+一个message类型的输入接口
+一个string输入接口
+
+输出节点是一个message类型的接口，一个output的string输出接口。
+
+这个节点，通过给定的API和Key，向LMStudio发送请求，要求卸载所有的模型。并且将输入的message和string直接输出到下一步
+
+# 获取指定索引的assistant：
+一个message类型的输入接口
+一个int输入框用于指定索引，默认-1
+
+输出一个string节点
+
+这个节点，会读取输入的message里面用户指定索引的assistant然后输出，超过message条数的时候返回空白，如果输入的是-1，则返回最后一条
+
+
+插件名叫LM Studio Tools
+每个节点的名称请选择一个符合内容要求的emoji放在首字符，以便用户更清楚看懂节点功能
